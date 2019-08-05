@@ -10,9 +10,16 @@
         </button>
       </div>
     </div>
+
+    Filter by language:
+    <select v-model="selected">
+      <option v-for="(language, index) in languageList" v-bind:value="language" :key="index">
+        {{ language }}
+      </option>
+    </select>
     <!--repositories list-->
     <ul class="col-8 list-unstyled mx-auto mt-3">
-      <li class="mb-3" v-for="repo in repoList" :key="repo.id">
+      <li class="mb-3" v-for="repo in filteredProjects" :key="repo.id">
         <div class="d-flex flex-row justify-content-between text-left">
           <h5 class="col-7 m-0"> {{ repo.name }}</h5>
           <span class="col-3 malign-self-end">{{ repo.language }}</span>
@@ -31,7 +38,15 @@ export default {
   data () {
     return {
       searchQuery: '',
-      repoList: undefined
+      repoList: [],
+      languageList: [],
+      selected: 'all'
+    }
+  },
+  computed: {
+    filteredProjects () {
+      return this.selected !== 'all' ? this.repoList.filter(repo => repo.language === this.selected)
+        : this.repoList
     }
   },
   methods: {
@@ -40,9 +55,14 @@ export default {
       axios.get(`https://api.github.com/orgs/${vm.searchQuery}/repos`)
         .then(response => {
           vm.repoList = response.data
-          console.log(vm.repoList)
+          vm.getLanguages()
         })
         .catch(error => console.log(error))
+    },
+    getLanguages () {
+      const vm = this
+      vm.languageList = Array.from(new Set(vm.repoList.map(repo => repo.language)))
+      vm.languageList.unshift('all')
     }
   }
 }
