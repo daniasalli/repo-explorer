@@ -45,8 +45,9 @@ export default {
   },
   computed: {
     filteredProjects () {
-      return this.selected !== 'all' ? this.repoList.filter(repo => repo.language === this.selected)
+      let filtered = this.selected !== 'all' ? this.repoList.filter(repo => repo.language === this.selected)
         : this.repoList
+      return filtered.sort((a, b) => b.stargazers_count - a.stargazers_count);
     }
   },
   methods: {
@@ -63,7 +64,7 @@ export default {
       const vm = this
       vm.languageList = Array.from(new Set(vm.repoList.map(repo => repo.language)))
       vm.languageList.unshift('all')
-    }
+    },
   }
 }
 </script>
