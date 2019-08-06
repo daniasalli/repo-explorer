@@ -1,8 +1,7 @@
 <template>
   <div id="app">
-    <div id="nav">
-      <router-link to="/home">Home</router-link> |
-      <router-link to="/branches">About</router-link>
+    <div class="header text-center bg-primary text-white">
+      <router-link class="h3 text-white text-decoration-none" to="/">Repository Explorer</router-link>
     </div>
     <router-view/>
   </div>
@@ -18,6 +17,7 @@ export default {
 
 <style lang="scss">
 @import '../node_modules/bootstrap/dist/css/bootstrap.min.css';
+@import '../node_modules/font-awesome/css/font-awesome.min.css';
 #app {
   font-family: 'Avenir', Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
@@ -25,5 +25,13 @@ export default {
   text-align: center;
   color: #2c3e50;
   margin-top: 60px;
+
+  .header {
+    position: absolute;
+    top: 0;
+    left: 0;
+    padding: 10px;
+    width: 100%;
+  }
 }
 </style>
