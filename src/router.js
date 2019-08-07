@@ -22,7 +22,7 @@ export default new Router({
       component: Home
     },
     {
-      path: '/projects/:org',
+      path: '/projects/:org/:page',
       name: 'projects',
       component: Repositories
     },

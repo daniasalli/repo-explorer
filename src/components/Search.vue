@@ -1,11 +1,11 @@
 <template>
   <div class="d-flex justify-content-center">
     <div class="px-2 search-bar ">
-      <i class="fa fa-search"></i>
+      <i class="fa fa-search mr-2"></i>
       <input class="search-input" placeholder="Organization name" v-model.trim="organization" />
     </div>
     <div>
-      <button class="btn-primary" @click="$emit('search-list', organization)">Find
+      <button class="btn btn-primary ml-2" @click="$emit('search-list', organization)">Find
       </button>
     </div>
   </div>

@@ -13,17 +13,36 @@
     </div>
 
     <div class="" v-if="!loading || repoList.length">
-      <h5 class="mt-3 text-left">{{ filteredProjects.length }} repository results for "{{ searchQuery }}"</h5>
+      <h5 class="my-5 text-left">Results for "{{ searchQuery }}"</h5>
 
-      <div class="text-right" v-if="languageList.length">Filter by language:
-        <select class="text-right" v-model="selected">
-          <option v-for="(language, index) in languageList" v-bind:value="language" :key="index">
-            {{ language }}
-          </option>
-        </select>
+      <!--list Controls-->
+      <div class="d-flex justify-content-between">
+        <!--Filters-->
+        <div class="text-right" v-if="languageList.length">Filter by language:
+          <select class="text-right" v-model="selected">
+            <option v-for="(language, index) in languageList" v-bind:value="language" :key="index">
+              {{ language }}
+            </option>
+          </select>
+        </div>
+        <!--Pagination controls-->
+        <div class="pagination-controls" v-if="pagination">
+          <div class="btn-group">
+            <button title="Previous page" class="btn btn-pagination"
+                    type="button" v-if="hasPrevious"
+                    @click.prevent="loadPage(pagination.prev.page)"><i
+              class="fa fa-chevron-left"></i></button>
+            <button title="Next page" class="btn btn-pagination"
+                    type="button" v-if="hasNext"
+                    @click.prevent="loadPage(pagination.next.page)"><i
+              class="fa fa-chevron-right"></i></button>
+          </div>
+          <span class="pagination-text">Page {{ current }} <span v-if="hasLast">of {{ pagination.last.page }}</span></span>
+        </div>
       </div>
+
       <!--repositories list-->
-      <ul class="list-unstyled mx-auto mt-3">
+      <ul class="list-unstyled mx-auto mt-3 repo-list">
         <li class="py-3" v-for="repo in filteredProjects" :key="repo.id">
           <div class="d-flex flex-row justify-content-between text-left">
             <router-link class="col-7 m-0"
@@ -45,6 +64,7 @@
 import axios from 'axios'
 import { mapActions } from 'vuex'
 import Search from '@/components/Search.vue'
+//import parse from 'parse-link-header'
 
 export default {
   name: 'Projects',
@@ -59,12 +79,15 @@ export default {
       selected: 'all',
       loading: false,
       loadingMessage: '',
-      warningText: ''
+      warningText: '',
+      pagination: {},
+      current: 1
     }
   },
   watch: {
     '$route' (to, from) {
       this.searchQuery = to.params.org
+      this.current = to.params.page
     }
   },
   computed: {
@@ -72,26 +95,42 @@ export default {
       let filtered = this.selected !== 'all' ? this.repoList.filter(repo => repo.language === this.selected)
         : this.repoList
       return filtered.sort((a, b) => b.stargazers_count - a.stargazers_count)
+    },
+    hasPrevious () {
+      return Object.prototype.hasOwnProperty.call(this.pagination, 'prev')
+    },
+    hasNext () {
+      return Object.prototype.hasOwnProperty.call(this.pagination, 'next')
+    },
+    hasLast () {
+      return Object.prototype.hasOwnProperty.call(this.pagination, 'last')
     }
   },
   methods: {
-    getList () {
+    getList (org, page) {
       const vm = this
+      let parse = require('parse-link-header')
       vm.repoList = []
       vm.showLoading()
-      axios.get(`https://api.github.com/orgs/${vm.searchQuery}/repos`)
+      axios.get(`https://api.github.com/orgs/${org}/repos`, {
+        params: {
+          page: page
+        }
+      })
         .then(response => {
           vm.repoList = response.data
+          vm.pagination = parse(response.headers.link)
+          console.log(vm.pagination)
           vm.getLanguages()
           vm.loading = false
         })
-        .catch( error => {
-          console.log('aaa')
-          vm.warningText = 'Looks like somethig went wrong, please try again later'
+        .catch(error => {
+          vm.warningText = error.response.data.message === 'Not Found' ? 'No results matching your search were available'
+            : 'Looks like something went wrong, please try again later'
           setTimeout(() => {
-            vm.loading = false;
+            vm.loading = false
             vm.warningText = ''
-          }, 2000);
+          }, 2000)
         })
     },
     getLanguages () {
@@ -100,18 +139,60 @@ export default {
       vm.languageList.unshift('all')
     },
     searchList (org) {
-      this.$router.push({ name: 'projects', params: { org: org } })
-      this.getList()
+      this.$router.push({ name: 'projects', params: { org: org, page: 1 } })
+      this.getList(org, 1)
+    },
+    loadPage (page) {
+      console.log(page)
+      this.$router.push({ name: 'projects', params: { org: this.searchQuery, page: page } })
+      this.getList(this.searchQuery, page)
     },
     showLoading () {
       this.loading = true
       this.loadingMessage = 'Looking for the organization\'s repositories'
     },
+    scrollFunction () {
+      console.log('paginating')
+      const vm = this
+      let parse = require('parse-link-header')
+      if (!this.pagination.next.url || this.actualFilter.searching) {
+        return false
+      }
+
+      const container = document.querySelector('ul.repo-list')
+      const { scrollHeight, scrollTop, offsetHeight } = container
+      const scroll = scrollHeight - scrollTop - offsetHeight
+
+      if (scroll < 1) {
+        axios({
+          method: 'get',
+          url: vm.pagination.next.url
+        })
+          .then(response => {
+            vm.repoList = vm.repoList.concat(response.data)
+            console.log(response.headers.link)
+            console.log(parse(response.headers.link))
+            vm.pagination = parse(response.headers.link)
+            vm.getLanguages()
+            vm.loading = false
+          })
+          .catch(error => {
+            vm.warningText = error.response.data.message === 'Not Found' ? 'No results matching your search were available'
+              : 'Looks like something went wrong, please try again later'
+            setTimeout(() => {
+              vm.loading = false
+              vm.warningText = ''
+            }, 2000)
+          })
+      }
+      return true
+    },
     ...mapActions(['updateRepo'])
   },
   mounted () {
     this.searchQuery = this.$route.params.org
-    this.getList()
+    this.current = this.$route.params.page
+    this.getList(this.searchQuery, this.$route.params.page)
   }
 }
 </script>
@@ -155,6 +236,17 @@ export default {
         .warning-text {
           font-weight: normal;
         }
+      }
+    }
+
+    .pagination-controls {
+      .btn-pagination {
+        border: 1px solid rgba(150,160,180,.5)!important;
+      }
+
+      .pagination-text {
+        margin: 8px 0px 10px 10px;
+        display: inline-block;
       }
     }
 

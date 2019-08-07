@@ -3,11 +3,11 @@
     <h4 class="mb-5"> Use this tool to search for an organisation's repositories using Github API </h4>
     <div class="d-flex justify-content-center align-content-center">
       <div class="search-bar">
-        <div class="px-2"><i class="fa fa-search"></i></div>
+        <div class="px-2"><i class="fa fa-search mr-2"></i></div>
         <input class="col-10" v-model.trim="searchQuery" />
       </div>
       <div>
-        <button class="btn-primary ml-2" @click="goToList">Find
+        <button class="btn btn-primary ml-2" @click="goToList">Find
         </button>
       </div>
     </div>
@@ -30,7 +30,7 @@ export default {
   },
   methods: {
     goToList () {
-      this.$router.push({ name: 'projects', params: { org: this.searchQuery } })
+      this.$router.push({ name: 'projects', params: { org: this.searchQuery, page: 1 } })
     }
   }
 }
