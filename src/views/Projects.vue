@@ -1,20 +1,9 @@
 <template>
   <div class="projects-container card-body col-10 mx-auto mt-5">
-    <search v-on:search-list="searchList"></search>
-
-    <div class="loading-overlay full" v-if="loading">
-      <div class="inner-overlay">
-        <template v-if="!warningText">
-          <i class="fa fa-circle-o-notch fa-3x fa-spin"></i>
-          <br/><p class="text-primary col-xs-10 text-xs-center m-b-0">{{ loadingMessage }}</p>
-        </template>
-        <p class="warning-text text-danger" v-if="warningText"> {{ warningText }}</p>
-      </div>
-    </div>
-
+    <search v-on:search-list="searchList" v-if="!loading"></search>
     <h5 class="mt-5 text-left">Results for "{{ searchQuery }}"</h5>
 
-    <div class="results-container mt-5 py-3" v-if="!loading && repoList.length">
+    <div class="results-container mt-5 py-3" v-show="!loading && repoList.length">
       <!--list Controls-->
       <div class="d-flex justify-content-between px-2">
         <!--Filters-->
@@ -37,6 +26,15 @@
     <div v-if="!repoList.length" class="my-5 text-left">
       <p class="text-muted mb-0">Sorry no there are no results available ):</p>
       <small class="text-muted">why don't you try a new search</small>
+    </div>
+    <div class="loading-overlay full" v-if="loading">
+      <div class="inner-overlay">
+        <template v-if="!warningText">
+          <i class="fa fa-circle-o-notch fa-3x fa-spin"></i>
+          <br/><p class="text-primary col-xs-10 text-xs-center m-b-0">{{ loadingMessage }}</p>
+        </template>
+        <p class="warning-text text-danger" v-if="warningText"> {{ warningText }}</p>
+      </div>
     </div>
   </div>
 </template>
