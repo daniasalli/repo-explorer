@@ -1,5 +1,5 @@
 <template>
-  <div class="projects-container card-body col-10 mx-auto mt-3">
+  <div class="projects-container card-body col-10 mx-auto mt-5">
     <search v-on:search-list="searchList"></search>
 
     <div class="loading-overlay full" v-if="loading">
@@ -12,11 +12,11 @@
       </div>
     </div>
 
-    <div class="" v-if="!loading || repoList.length">
-      <h5 class="my-5 text-left">Results for "{{ searchQuery }}"</h5>
+    <h5 class="mt-5 text-left">Results for "{{ searchQuery }}"</h5>
 
+    <div class="results-container mt-5 py-3" v-if="!loading && repoList.length">
       <!--list Controls-->
-      <div class="d-flex justify-content-between">
+      <div class="d-flex justify-content-between px-2">
         <!--Filters-->
         <div class="text-right" v-if="languageList.length">Filter by language:
           <select class="text-right" v-model="selected">
@@ -37,26 +37,32 @@
                     @click.prevent="loadPage(pagination.next.page)"><i
               class="fa fa-chevron-right"></i></button>
           </div>
-          <span class="pagination-text">Page {{ current }} <span v-if="hasLast">of {{ pagination.last.page }}</span></span>
+          <span class="pagination-text small">Page {{ current }} <span v-if="hasLast">of {{ pagination.last.page }}</span></span>
         </div>
       </div>
 
       <!--repositories list-->
       <ul class="list-unstyled mx-auto mt-3 repo-list">
         <li class="py-3" v-for="repo in filteredProjects" :key="repo.id">
-          <div class="d-flex flex-row justify-content-between text-left">
-            <router-link class="col-7 m-0"
-                         :to="{ name: 'branches', params: { repo: repo.name, owner: repo.owner.login }}">
+          <div class="d-flex flex-row justify-content-between align-items-center text-left">
+            <router-link class="col-6 m-0"
+                         :to="{ name: 'branches', params: { repo: repo.name, owner: repo.owner.login, page: 1 }}">
               <h6 class="m-0" @click="updateRepo(repo)"> {{ repo.name }}</h6>
             </router-link>
-            <span class="col-3 malign-self-end">{{ repo.language }}</span>
-            <span class="col-2 align-self-end"> <i class="fa fa-star"></i> {{ repo.stargazers_count }}</span>
+            <span class="col-3 align-self-end">{{ repo.language }}</span>
+            <span class="col-1 align-self-end"> <i class="fa fa-star"></i> {{ repo.stargazers_count }}</span>
+            <span class="col-1 align-self-end"> <i class="fa fa-code-fork"></i> {{ repo.forks }}</span>
           </div>
-          <p class="text-left px-3 mt-1 text-muted mb-0 col-7 description"> {{ repo.description }}</p>
+          <p class="text-left px-3 mt-1 text-muted mb-0 col-6 description text-break small"> {{ repo.description }}</p>
+          <p class="text-left px-3 mt-1 text-muted mb-0 col-6 small">
+            Updated at {{ repo.updated_at | dateFormat('MMM DD, YYYY')}}</p>
         </li>
       </ul>
     </div>
-
+    <div v-if="!repoList.length" class="my-5 text-left">
+      <p class="text-muted mb-0">Sorry no there are no results available ):</p>
+      <small class="text-muted">why don't you try a new search</small>
+    </div>
   </div>
 </template>
 
@@ -64,8 +70,7 @@
 import axios from 'axios'
 import { mapActions } from 'vuex'
 import Search from '@/components/Search.vue'
-//import parse from 'parse-link-header'
-
+import moment from 'moment'
 export default {
   name: 'Projects',
   components: {
@@ -82,6 +87,14 @@ export default {
       warningText: '',
       pagination: {},
       current: 1
+    }
+  },
+  filters: {
+    dateFormat (date, format) {
+      if (!date) {
+        return 'N/A'
+      }
+      return moment(date).format(format)
     }
   },
   watch: {
@@ -143,7 +156,6 @@ export default {
       this.getList(org, 1)
     },
     loadPage (page) {
-      console.log(page)
       this.$router.push({ name: 'projects', params: { org: this.searchQuery, page: page } })
       this.getList(this.searchQuery, page)
     },
@@ -199,10 +211,6 @@ export default {
 
 <style lang="scss">
   .projects-container {
-
-    max-height: 100vh;
-    overflow-y: auto;
-
     .loading-overlay {
       background-color: rgba(255, 255, 255, 0.9);
       position: fixed;
@@ -238,36 +246,27 @@ export default {
         }
       }
     }
+    .results-container {
 
-    .pagination-controls {
-      .btn-pagination {
-        border: 1px solid rgba(150,160,180,.5)!important;
-      }
-
-      .pagination-text {
-        margin: 8px 0px 10px 10px;
-        display: inline-block;
-      }
-    }
-
-    ul {
-      li {
-        border-bottom: 1px solid #eceeef;
-        &:last-of-type {
-          border-bottom: none;
-        }
-        &:hover, &:focus {
-          background-color: #f3f6f9;
-          border-radius: 8px;
-          transition: background-color .3s ease;
+      ul {
+        li {
+          border-bottom: 1px solid #eceeef;
+          &:last-of-type {
+            border-bottom: none;
+          }
+          &:hover, &:focus {
+            background-color: #f3f6f9;
+            border-radius: 8px;
+            transition: background-color .3s ease;
+          }
         }
       }
-    }
-    // for project decription
-    .description {
-      overflow: hidden;
-      white-space: nowrap;
-      text-overflow: ellipsis;
+      // for project description
+      .description {
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+      }
     }
   }
 

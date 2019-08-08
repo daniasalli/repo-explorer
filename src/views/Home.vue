@@ -7,18 +7,14 @@
         <input class="col-10" v-model.trim="searchQuery" />
       </div>
       <div>
-        <button class="btn btn-primary ml-2" @click="goToList">Find
+        <button class="btn btn-primary ml-2 font-weight-bold" @click="goToList">Find
         </button>
       </div>
     </div>
-    <!--<HelloWorld msg="Welcome to Your Vue.js App"/>-->
   </div>
 </template>
 
 <script>
-// @ is an alias to /src
-import HelloWorld from '@/components/HelloWorld.vue'
-
 export default {
   name: 'home',
   components: {
@@ -60,6 +56,7 @@ export default {
         }
       }
     }
+
   }
 
 </style>

@@ -40,8 +40,19 @@ export default {
   .fade-enter-active, .fade-leave-active {
     transition: opacity .5s;
   }
-  .fade-enter, .fade-leave-to /* .fade-leave-active below version 2.1.8 */ {
+  .fade-enter, .fade-leave-to  {
     opacity: 0;
+  }
+
+  .pagination-controls {
+    /*.btn-pagination {*/
+      /*border: 1px solid rgba(150,160,180,.5);*/
+    /*}*/
+
+    .pagination-text {
+      margin: 8px 0 10px 10px;
+      display: inline-block;
+    }
   }
 }
 </style>

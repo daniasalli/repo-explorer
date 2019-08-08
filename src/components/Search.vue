@@ -5,7 +5,7 @@
       <input class="search-input" placeholder="Organization name" v-model.trim="organization" />
     </div>
     <div>
-      <button class="btn btn-primary ml-2" @click="$emit('search-list', organization)">Find
+      <button class="btn btn-primary ml-2 font-weight-bold" @click="$emit('search-list', organization)">Find
       </button>
     </div>
   </div>

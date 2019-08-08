@@ -27,7 +27,7 @@ export default new Router({
       component: Repositories
     },
     {
-      path: '/branches/:owner/:repo',
+      path: '/branches/:owner/:repo/:page',
       name: 'branches',
       component: ProjectBranches
     },
