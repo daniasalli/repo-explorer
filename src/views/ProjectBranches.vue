@@ -9,19 +9,10 @@
       <p>{{ branches.length }} branches</p>
     </div>
     <!--pagination-->
-    <div class="pagination-controls text-right mb-3" v-if="pagination">
-      <div class="btn-group">
-        <button title="Previous page" class="btn btn-pagination"
-                type="button" v-if="hasPrevious"
-                @click.prevent="loadPage(pagination.prev.page)"><i
-          class="fa fa-chevron-left"></i></button>
-        <button title="Next page" class="btn btn-pagination"
-                type="button" v-if="hasNext"
-                @click.prevent="loadPage(pagination.next.page)"><i
-          class="fa fa-chevron-right"></i></button>
-      </div>
-      <span class="pagination-text small">Page {{ current }} <span v-if="hasLast">of {{ pagination.last.page }}</span></span>
-    </div>
+    <pagination v-if="pagination" :pagination="pagination"
+                :current="current"
+                v-on:load-page="loadPage"
+                class="text-right mb-3"></pagination>
 
     <ul class="list-unstyled">
       <li class="d-flex flex-row p-2 align-items-center" v-for="branch in branches" :key="branch.name">
@@ -38,7 +29,12 @@
 <script>
 import axios from 'axios'
 import { mapGetters } from 'vuex'
+import Pagination from '@/components/PaginationButtons.vue'
 export default {
+  name: 'Branches',
+  components: {
+    Pagination
+  },
   data () {
     return {
       owner: '',
@@ -54,16 +50,7 @@ export default {
     }
   },
   computed: {
-    ...mapGetters(['getRepo']),
-    hasPrevious () {
-      return Object.prototype.hasOwnProperty.call(this.pagination, 'prev')
-    },
-    hasNext () {
-      return Object.prototype.hasOwnProperty.call(this.pagination, 'next')
-    },
-    hasLast () {
-      return Object.prototype.hasOwnProperty.call(this.pagination, 'last')
-    }
+    ...mapGetters(['getRepo'])
   },
   methods: {
     getBranches (page) {
