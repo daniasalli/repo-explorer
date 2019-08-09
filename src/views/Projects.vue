@@ -3,7 +3,17 @@
     <search v-on:search-list="searchList" v-if="!loading"></search>
     <h5 class="mt-5 text-left">Results for "{{ searchQuery }}"</h5>
 
-    <div class="results-container mt-5 py-3" v-show="!loading && repoList.length">
+    <div v-if="loading" class="text-center d-flex flex-column align-items-center text-primary p-4">
+      <i class="fa fa-spinner fa-spin fa-3x fa-fw"></i>
+      <p class="font-weight-bold mt-2">Loading</p>
+    </div>
+
+    <!-- Request Error -->
+    <div v-else-if="warningText" class="bg-orange-100 border-l-4 border-orange-500 text-orange-700 p-4" role="alert">
+      {{ warningText }}
+    </div>
+
+    <div class="results-container mt-5 py-3" v-show="!loading && !warningText && repoList.length">
       <!--list Controls-->
       <div class="d-flex justify-content-between px-2">
         <!--Filters-->
@@ -23,18 +33,9 @@
       <!--repositories list-->
       <repo-list :projects="filteredProjects"></repo-list>
     </div>
-    <div v-if="!repoList.length" class="my-5 text-left">
+    <div v-if="!repoList.length && !loading" class="my-5 text-left">
       <p class="text-muted mb-0">Sorry no there are no results available ):</p>
       <small class="text-muted">why don't you try a new search</small>
-    </div>
-    <div class="loading-overlay full" v-if="loading">
-      <div class="inner-overlay">
-        <template v-if="!warningText">
-          <i class="fa fa-circle-o-notch fa-3x fa-spin"></i>
-          <br/><p class="text-primary col-xs-10 text-xs-center m-b-0">{{ loadingMessage }}</p>
-        </template>
-        <p class="warning-text text-danger" v-if="warningText"> {{ warningText }}</p>
-      </div>
     </div>
   </div>
 </template>
@@ -92,7 +93,6 @@ export default {
         .then(response => {
           vm.repoList = response.data
           vm.pagination = parse(response.headers.link)
-          console.log(vm.pagination)
           vm.getLanguages()
           vm.loading = false
         })
@@ -107,8 +107,9 @@ export default {
     },
     getLanguages () {
       const vm = this
-      vm.languageList = Array.from(new Set(vm.repoList.map(repo => repo.language)))
+      vm.languageList = Array.from(new Set(vm.repoList.map(repo => repo.language))).filter(value => value)
       vm.languageList.unshift('all')
+      vm.languageList.sort((a, b) => a.localeCompare(b))
     },
     searchList (org) {
       this.$router.push({ name: 'projects', params: { org: org, page: 1 } })
@@ -132,42 +133,4 @@ export default {
 </script>
 
 <style lang="scss">
-  .projects-container {
-    .loading-overlay {
-      background-color: rgba(255, 255, 255, 0.9);
-      position: fixed;
-      width: 100%;
-      height: 100%;
-      z-index: 1;
-      top: 0;
-      left: 0;
-
-      &.full {
-        background-color: #fbfbfb;
-      }
-
-      .inner-overlay {
-        text-align: center;
-        position: absolute;
-        left: 50%;
-        top: 50%;
-        transform: translate(-50%, -70%);
-        color: cornflowerblue;
-        font-weight: bold;
-        -webkit-user-select: none;
-        -moz-user-select: none;
-        -ms-user-select: none;
-        user-select: none;
-        cursor: default;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        .warning-text {
-          font-weight: normal;
-        }
-      }
-    }
-  }
-
 </style>

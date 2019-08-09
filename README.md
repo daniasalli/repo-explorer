@@ -1,6 +1,14 @@
-# repo-explorer
+# repo-explorer - with VueJs
+
+web app that communicates with Github's RESTful API.
+
+* Clone [repo-explorer-clone](https://github.com/daniasalli/repo-explorer.git)
+OR
+* Download [cash-machine-Download](https://github.com/daniasalli/repo-explorer/archive/master.zip)
+
 
 ## Project setup
+Install dependencies
 ```
 npm install
 ```

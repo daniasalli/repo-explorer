@@ -3,7 +3,7 @@
     <div class="header text-center bg-primary text-white">
       <router-link class="h3 text-white text-decoration-none" to="/">Repository Explorer</router-link>
     </div>
-    <transition name="fade">
+    <transition name="fade" mode="out-in">
       <router-view/>
     </transition>
 
@@ -38,7 +38,7 @@ export default {
   }
 
   .fade-enter-active, .fade-leave-active {
-    transition: opacity .5s;
+    transition: opacity .3s ease-in;
   }
   .fade-enter, .fade-leave-to  {
     opacity: 0;

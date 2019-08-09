@@ -3,7 +3,7 @@
       <li class="py-3" v-for="repo in projects" :key="repo.id">
         <div class="d-flex flex-row justify-content-between align-items-center text-left">
           <router-link class="col-6 m-0"
-                       :to="{ name: 'branches', params: { repo: repo.name, owner: repo.owner.login, page: 1 }}">
+                       :to="{ name: 'branches', params: { repo: repo.name, owner: repo.owner.login }, query: { page: 1 }}">
             <h6 class="m-0" @click="updateRepo(repo)"> {{ repo.name }}</h6>
           </router-link>
           <span class="col-3 align-self-end">{{ repo.language }}</span>
